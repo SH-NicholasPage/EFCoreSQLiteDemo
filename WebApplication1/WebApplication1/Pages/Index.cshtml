@@ -1,0 +1,83 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+@section Styles
+    {
+    <link rel="stylesheet" href="~/css/index.css" asp-append-version="true" />
+}
+@section Scripts
+    {
+    <script src="~/js/index.js" asp-append-version="true"></script>
+}
+
+<table class="table table-dark table-striped table-hover caption-top">
+    <caption>List of inventory items</caption>
+    <thead>
+        <tr>
+            <th scope="col">Product Code</th>
+            <th scope="col">Description</th>
+            <th scope="col">Product In Date</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Price</th>
+        </tr>
+    </thead>
+    <tbody class="table-group-divider">
+        @{
+            List<Inventory> inventory = Model.db.Inventory.ToList();
+            for (int i = 0; i < inventory.Count; i++)
+            {
+                Inventory inv = inventory[i];
+                <tr data-bs-toggle="modal" data-bs-target="#changeModal" onclick="populateModal(@(i))">
+                    <td class="ProductCode">@inv.ProductCode</td>
+                    <td class="ProductDescription">@inv.ProductDescription</td>
+                    <td class="ProductInDate">@inv.ProductInDate</td>
+                    <td class="ProductQuantity">@inv.ProductQuantity</td>
+                    <td class="ProductPrice">@inv.ProductPrice</td>
+                    <td style="display:none;"><data id="row@(i)" style="display: none;">@JsonSerializer.Serialize(inv)</data></td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<div class="modal" id="changeModal">
+    <div class="modal-dialog modal-dialog-centered" role="dialog" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Update Row</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="modal-form">
+                    <div class="mb-3">
+                        <label for="product-code" class="col-form-label">Product code:</label>
+                        <input type="text" class="form-control" id="product-code" name="ProductCode" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label for="product-description" class="col-form-label">Product Description:</label>
+                        <textarea class="form-control" id="product-description" name="ProductDescription" maxlength="64"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="product-in-date" class="col-form-label">Product In Date:</label>
+                        <input type="date" class="form-control" id="product-in-date" name="ProductInDate" max="@(DateOnly.FromDateTime(DateTime.Now).ToString("yyyy-MM-dd"))">
+                    </div>
+                    <div class="mb-3">
+                        <label for="product-quantity" class="col-form-label">Product Quantity:</label>
+                        <input type="number" min="0" class="form-control" id="product-quantity" name="ProductQuantity">
+                    </div>
+                    <div class="mb-3">
+                        <label for="product-price" class="col-form-label">Product Price:</label>
+                        <input type="number" min="0.01" step="0.01" class="form-control" id="product-price" name="ProductPrice">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="modifyRow()">Confirm</button>
+            </div>
+        </div>
+
+    </div>
+</div>
